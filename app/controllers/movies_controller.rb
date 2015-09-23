@@ -11,18 +11,26 @@ class MoviesController < ApplicationController
   end
 
   def index
+    @all_ratings = Movie.all_ratings
+    if(params[:ratings].nil?) then
+      @selected_ratings = @all_ratings
+    else
+      @selected_ratings = params[:ratings].keys
+      #@selected_ratings ||= [ @all_ratings.map { |d| [d, 1] } ]
+    end
+
     if params[:by] == 'title'
       @title_header = 'hilite'
-      @movies = Movie.order(:title)
+      @movies = Movie.where(:rating => params[:r]).order(:title)
     elsif params[:by] == 'release_date'
       @release_date_header = 'hilite'
-      @movies = Movie.order(:release_date)
+      @movies = Movie.where(:rating => params[:r]).order(:release_date)
     #@movies = Movie.find(:all, order: params[:by])
     else
-      @movies = Movie.all
+      @movies = Movie.where(:rating => @selected_ratings)
     end
   end
-  
+
   def new
     # default: render 'new' template
   end
