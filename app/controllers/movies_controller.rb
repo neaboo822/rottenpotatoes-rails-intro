@@ -12,23 +12,43 @@ class MoviesController < ApplicationController
 
   def index
     @all_ratings = Movie.all_ratings
-    if(params[:ratings].nil?) then
+
+    if (params[:ratings].nil?)
       @selected_ratings = @all_ratings
     else
       @selected_ratings = params[:ratings].keys
-      #@selected_ratings ||= [ @all_ratings.map { |d| [d, 1] } ]
+      session[:ratings] = params[:ratings]
     end
 
-    if params[:by] == 'title'
-      @title_header = 'hilite'
-      @movies = Movie.where(:rating => params[:r]).order(:title)
-    elsif params[:by] == 'release_date'
-      @release_date_header = 'hilite'
-      @movies = Movie.where(:rating => params[:r]).order(:release_date)
-    #@movies = Movie.find(:all, order: params[:by])
-    else
-      @movies = Movie.where(:rating => @selected_ratings)
+    if !session[:ratings].nil?
+      @selected_ratings = session[:ratings].keys
     end
+
+    if (params[:by].nil?)
+      @selected_by = session[:by]
+    else
+      @selected_by = params[:by]
+      session[:by] = params[:by]
+    end
+
+    if @selected_by == 'title'
+      @title_header = 'hilite'
+    elsif @selected_by == 'release_date'
+      @release_date_header = 'hilite'
+    end
+
+    @movies = Movie.where(:rating => @selected_ratings).order(@selected_by)
+
+    #if params[:by] == 'title'
+    #  @title_header = 'hilite'
+    #  @movies = Movie.where(:rating => @selected_ratings).order(:title)
+    #elsif params[:by] == 'release_date'
+    #  @release_date_header = 'hilite'
+    #  @movies = Movie.where(:rating => @selected_ratings).order(:release_date)
+    ##@movies = Movie.find(:all, order: params[:by])
+    #else
+    #  @movies = Movie.where(:rating => @selected_ratings)
+    #end
   end
 
   def new
